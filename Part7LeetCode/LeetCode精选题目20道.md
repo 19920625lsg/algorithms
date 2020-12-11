@@ -656,6 +656,61 @@ class Solution {
 }
 ```
 
+> C++实现
+
+```cpp
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int R{0}; // 行
+    int C{0}; // 列
+    int dirs[4][2] = {{0,  1},
+                      {1,  0},
+                      {0,  -1},
+                      {-1, 0}}; // 上下左右四个方向
+    vector<vector<bool>> visited;
+    vector<vector<char>> grid;
+
+
+    bool inGrid(int r, int c) {
+        return r >= 0 && r < R && c >= 0 && c < C;
+    }
+
+    void dfs(int r, int c) {
+        visited[r][c] = true;
+        for (auto &dir : dirs) {
+            int rNext = r + dir[0];
+            int cNext = c + dir[1];
+            if (inGrid(rNext, cNext) && !visited[rNext][cNext] && grid[rNext][cNext] == '1') {
+                dfs(rNext, cNext);
+            }
+        }
+    }
+
+    int numIslands(vector<vector<char>> &grid) {
+        R = grid.size();
+        C = grid[0].size();
+        this->grid = grid;
+        int ccCnt = 0;
+        // 初始化访问数组
+        for (int i = 0; i < R; i++) visited.emplace_back(C, false); // 初始化访问数组都为false
+        for (int r = 0; r < R; r++) {
+            for (int c = 0; c < C; c++) {
+                if (!visited[r][c] && grid[r][c] == '1') {
+                    dfs(r, c);
+                    ccCnt++;
+                }
+            }
+        }
+        return ccCnt;
+    }
+};
+```
+
 ### 8.[1219.黄金矿工](https://leetcode-cn.com/problems/path-with-maximum-gold/)
 > DFS求最大值，很简单
 ```java
