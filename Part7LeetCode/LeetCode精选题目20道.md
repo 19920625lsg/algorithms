@@ -18,6 +18,8 @@
 解释: 区间 [1,4] 和 [4,5] 可被视为重叠区间。
 ```
 
+> Java实现
+
 ```java
 // 考虑四个用例
 // [[1,3],[2,6],[8,10],[15,18]]
@@ -50,6 +52,36 @@ class Solution {
         return res;
     }
 }
+```
+
+> C++实现
+```cpp
+#include <cmath>
+
+class Solution {
+public:
+    // 贪心算法，按照左端点升序排序
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        // intervals相当于二维数组，这里按照左端点进行升序排序
+        sort(intervals.begin(), intervals.end());
+        vector<vector<int>> res; // 内部的vector<int>代表区间，固定两个元素，外层vector表示存储所有合并后的区间
+        int left = INT_MIN, right = INT_MIN; // 初始化最左端点和最右端点
+        for(auto& interval : intervals) {
+            if (interval[0] <= right) {
+                 // 当前区间的左端点 < 最右端点，则可以合并区间
+                 if (interval[1] <= right) continue; // 之前的区间完全覆盖当前的区间，直接跳过，苟泽更新右端点
+                 right = interval[1]; // [left, right]没有完全包括该区间，因为当前区间左端点interval[0]肯定小于left，所以更新右端点即可
+            } else { // 如果新来区间的左端点比目前最右端点还靠右，即[interval[0], interval[1]]完全在区间[left, right]右侧，显然需要新开辟一个区间放到结果中了
+                if (left != INT_MIN) res.push_back({left, right});
+                left = interval[0];
+                right = interval[1];
+            }
+        }
+        // 最后的left和right记得要处理
+        if (left != INT_MIN) res.push_back({left, right});
+        return res;
+    }
+};
 ```
 
 ### 2.[325.和为K的最长子数组长度](https://leetcode-cn.com/problems/maximum-size-subarray-sum-equals-k/)
