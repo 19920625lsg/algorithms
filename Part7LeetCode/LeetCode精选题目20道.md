@@ -131,6 +131,33 @@ class Solution {
 }
 ```
 
+```cpp
+class Solution {
+public:
+    int maxSubArrayLen(vector<int>& nums, int k) {
+        if (nums.size() == 0) return 0;
+        int N = nums.size() + 1;
+        int a[N]; // 下标从1开始的nums
+        a[0] = 0; // 下标为0的元素初始化为0
+        int S[N]; // 差分数组，S[i] = S[i - 1] + a[i];
+        for (int i = 1; i < N; i++) { // 对原来的数组重新赋值，下标 + 1才能方便前缀和计算
+            a[i] = nums[i - 1];
+            S[i] = S[i - 1] + a[i];
+        }
+
+        int res = 0;
+        for (int i = 1; i < N; i++) {
+            for (int j = i; j < N; j++) { // 一定注意这里是j = i而不是j = i + 1
+                if (S[j] - S[i - 1] == k) {
+                    res = max(res, j - i + 1);
+                }
+            }
+        }
+        return res;
+    }
+};
+```
+
 > 前缀和 + 哈希 + 贪心
 
 ```java
@@ -166,6 +193,41 @@ class Solution {
         return res;
     }
 }
+```
+
+```cpp
+class Solution {
+public:
+    // 注意不能用滑动窗口，滑动窗口一般是正数数组或者字符串才用(这两种情形当right++地时候目标值增加，当left++地时候，目标值减少。正数数组目标值是区间和，字符串时字符出现频率)
+    int maxSubArrayLen(vector<int>& nums, int k) {
+        if (nums.size() == 0) return 0;
+        int N = nums.size() + 1;
+        int a[N]; // 下标从1开始的nums
+        a[0] = 0; // 下标为0的元素初始化为0
+        int S[N]; // 差分数组，S[i] = S[i - 1] + a[i];
+        S[0] = 0;
+        for (int i = 1; i < N; i++) { // 对原来的数组重新赋值，下标 + 1才能方便前缀和计算
+            a[i] = nums[i - 1];
+            S[i] = S[i - 1] + a[i];
+        }
+
+        // 遍历前缀和，同时构建map，键为潜水和1到i的前缀和即S[i] - S[0] = S[i]，值为i
+        map<int, int> m;
+        int res = 0;
+        for (int i = 0; i < N; i++) { // 必须从0开始，因为一个元素都没有也算一种情况哦
+            // 在map中匹配剩余的值
+            int target = S[i] - k;
+            // 如果能匹配到剩余值对应的map的key，那么key对应的value就是要找地区间的左端点，map[target]是右端点
+            if (m.find(target) != m.end()) { // 判断键值不能这么用，不存在这个键是会新建地。判断键是否存在的方法要记一下
+                res = max(res, i - m[target]); // [map[target], i)就是我们要找的区间
+            }
+
+            // 如果这个前缀和从来没有出现过，则更新当前前缀和的最优索引，注意如果这个前缀和的值之前出现过则不能覆盖(贪心算法：先加入的前缀和S[i]对应的索引i肯定更小)
+            if (m.find(S[i]) == m.end()) m[S[i]] = i;
+        }
+        return res;
+    }
+};
 ```
 
 
