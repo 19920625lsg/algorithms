@@ -442,6 +442,56 @@ class Solution {
     }
 }
 ```
+
+> C++实现
+
+```cpp
+#include <cmath>
+
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        unordered_map<char, int> need; // T中字符出现的次数
+        unordered_map<char, int> window; // [窗口]中的相应字符出现的次数
+        for (auto& c : t) need[c]++; // 统计目标字符串中各字符的频率
+
+        int left = 0, right = 0; // 使用left和right变量初始化窗口的两端，不要忘了，区间[left, right)是左闭右开地，所以初始情况下窗口没有任何元素
+        int valid = 0; // 窗口中满足need条件的字符个数
+        int start = 0, len = INT_MAX; // 最小覆盖子串地起始索引及长度
+        while (right < s.size()) {
+            char c = s[right]; // c是将要移入窗口的字符
+            
+            right++; // 右边界右移，扩大窗口
+            
+            // 进行窗口内的一些更新
+            if (need.count(c)) { // 如果目标字符串中包含c，说明c是要找的
+                window[c]++; // 字符c移入窗口
+                if (window[c] == need[c]) valid++; // 如果窗口内字符c的频率和目标字符串中字符c的频率相等，则c已经达到了要求
+            }
+
+            // 判断窗口是否需要收缩
+            while (valid == need.size()) {
+                // 在这里更新最小覆盖字符串
+                if (right - left < len) { // 当前的窗口宽度小于前面得到的窗口宽度了
+                    start = left;
+                    len = right - left;
+                }
+                // d是将移出窗口的字符
+                char d = s[left];
+                // 左移窗口
+                left++;
+                // 进行窗口内的数据的一些列更新
+                if (need.count(d)) { // 目标字符串包含d，那么窗口中字符d的频率要变化
+                    if (window[d] == need[d]) valid--; // 在移出之前d的字符频率在窗口和目标字符串中正好相等，那么移出d之后，达标的字符个数就要减少一个
+                    window[d]--; // 字符d的频率也要减少
+                }
+            }
+        }
+        return len == INT_MAX ? "" : s.substr(start, len);
+    }
+};
+```
+
 ### 6.[438.找到字符串中所有字母异位词](https://leetcode-cn.com/problems/find-all-anagrams-in-a-string/)
 > 和上面的题几乎完全一样，就是变换了下要返回的数据，把start依次加入到结果列表中并返回即可
 
