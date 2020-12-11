@@ -264,8 +264,34 @@ class Solution {
 }
 ```
 
+> C++实现如下：
+
+```cpp
+class Solution {
+public:
+    // 找出每个元素右侧第一个比它大的元素的下标，维护一个从栈底到栈顶递减的单调栈
+    vector<int> nextGreaterElement(vector<int> nums) {
+        stack<int> st;
+        int N = nums.size();
+        vector<int> res(N, 0); // 初始化长度为N值都为0的一个数组
+        for (int i = N - 1; i >= 0; i--) {
+            // 只要栈不为空，且栈顶元素比当前元素小，则弹出栈顶元素。每个元素入栈一次出栈一次，所以时间复杂度为O(n)
+            while(!st.empty() && nums[st.top()] <= nums[i]) st.pop();
+            int nearestMax = st.empty() ? -1 : st.top(); // 新元素入栈后一直到调整到了单调栈
+            res[i] = nearestMax == -1 ? 0 : (nearestMax - i);
+            st.push(i); // 插入新元素，因为上面while的调整，所以下面仍然可以保持单调性
+        }
+        return res;
+    }
+
+    vector<int> dailyTemperatures(vector<int>& T) {
+        return nextGreaterElement(T);
+    }
+};
+```
+
 ### 4.[554.砖墙](https://leetcode-cn.com/problems/brick-wall/)
-> // 计算每行所有缝隙位置(距离最左侧的距离)，枚举所有缝隙位置去划线，通过二分法确定当前的线是否穿过砖
+> 计算每行所有缝隙位置(距离最左侧的距离)，枚举所有缝隙位置去划线，通过二分法确定当前的线是否穿过砖
 
 ```txt
 你的面前有一堵矩形的、由多行砖块组成的砖墙。 这些砖块高度相同但是宽度不同。你现在要画一条自顶向下的、穿过最少砖块的垂线。
@@ -326,6 +352,39 @@ class Solution {
     }
 }
 ```
+
+> C++实现
+
+```cpp
+class Solution {
+public:
+    int leastBricks(vector<vector<int>>& wall) {
+        set<int> crackAllSet; // 所有不重复的缝隙集合
+        vector<vector<int>> rowCracksList(wall.size()); // 存储每一行的所有缝隙位置(位置即距离最左侧的距离)
+        for (auto& wallRow : wall) { // 处理每一行，统计当前行的所有裂缝位置
+            vector<int> vec;
+            int sum = 0; // 存储缝隙的位置
+            for (int j = 0; j < wallRow.size() - 1; j++) { // wallRow.size() - 1表示最后一块砖不算，因为垂直边缘不能划线
+                sum += wallRow[j]; // 计算距离最左侧的距离
+                vec.push_back(sum); // 把当前砖块的位置加进去
+                crackAllSet.insert(sum); // 累计所有的缝隙位置并去重
+            }
+            rowCracksList.push_back(vec); // 把当前行的所有缝隙组成的列表加进去
+        }
+        int res = wall.size(); // 初始化为最多穿过的砖数(即为行数)，不要初始化为其他值，否则可能找不到缝隙。
+        // 遍历所有的缝隙，通过二分法判断能否穿过某一行
+        for (auto& crack : crackAllSet) {
+            int wallsThrough = wall.size(); // 初始化默认穿过所有的墙
+            for (auto& rowCracks : rowCracksList) {
+                if (binary_search(rowCracks.begin(), rowCracks.end(), crack)) wallsThrough--; // 找到缝隙了，没有穿过当前的砖
+            }
+            res = min(res, wallsThrough);
+        }
+        return res;
+    }
+};
+```
+
 ### 5.[76.最小子串覆盖](https://leetcode-cn.com/problems/minimum-window-substring/submissions/)
 > 滑动窗口
 
