@@ -668,13 +668,9 @@ class Solution {
 public:
     int R{0}; // 行
     int C{0}; // 列
-    int dirs[4][2] = {{0,  1},
-                      {1,  0},
-                      {0,  -1},
-                      {-1, 0}}; // 上下左右四个方向
+    int dirs[4][2] = {{0,  1}, {1,  0}, {0,  -1}, {-1, 0}}; // 上下左右四个方向
     vector<vector<bool>> visited;
     vector<vector<char>> grid;
-
 
     bool inGrid(int r, int c) {
         return r >= 0 && r < R && c >= 0 && c < C;
