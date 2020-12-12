@@ -1,5 +1,7 @@
 # LeetCode精选题目20道
 
+[toc]
+
 ### 1.[56.合并区间](https://leetcode-cn.com/problems/merge-intervals/)
 > 贪心
 
