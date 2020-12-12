@@ -1081,6 +1081,68 @@ class Solution {
 }
 ```
 
+> C++实现
+
+```cpp
+class Solution {
+public:
+    int n;
+    vector<vector<bool>> visited;
+    vector<vector<string>> res;
+
+    bool check(int r, int c, vector<vector<int>> points) {
+        for (auto& point : points) {
+            // 同一行 or 同一列 则不能放，直接返回
+            if (point[0] == r || point[1] == c) return false;
+            // 斜率为1表示在一条斜线上，直接返回，不和上面的条件合并是为了 point[1]-c 值为0
+            double k = abs((point[0] - r) * 1.0 / (point[1] - c));
+            if (k == 1.0) return false;
+        }
+        return true;
+    }
+
+    void dfs(int r, int c, vector<vector<int>> points) {
+        visited[r][c] = true;
+        points.push_back({r, c});
+        if (points.size() == n) { // 找到了一个合适的放置方案
+            vector<string> solution;
+            for (int i = 0; i < n; i++) {
+                string sb;
+                for (int j = 0; j < n; j++) {
+                    if (visited[i][j]) sb += "Q";
+                    else sb += ".";
+                }
+                solution.push_back(sb);
+            }
+            res.push_back(solution);
+            return;
+        }
+
+        // 上面的点满足条件了，则下一个必须从下一行开始了
+        if (r + 1 < n) { // 行必须在合适的范围
+            for (int i = 0; i < n; i++) { // 固定行，遍历列
+                if (!visited[r + 1][i] && check(r + 1, i, points)) {
+                    dfs(r + 1, i, points);
+                    visited[r + 1][i] = false;
+                    points.pop_back(); // 回溯法，删除最后一个元素
+                }
+            }
+        }
+    }
+
+    vector<vector<string>> solveNQueens(int n) {
+        this->n = n;
+        for (int i = 0; i < n; i++) {
+            vector<vector<int>> points;
+            visited.clear(); // 清理之前的访问状态
+            for (int i = 0; i < n; i++) visited.emplace_back(vector<bool>(n, false)); // 初始化为false
+            dfs(0, i, points);
+        }
+        return res;
+    }
+};
+```
+
 
 ### 11.[22.括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
 > 栈 + 暴力DFS
