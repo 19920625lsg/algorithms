@@ -1,7 +1,5 @@
 # LeetCode精选题目20道
 
-[toc]
-
 ### 1.[56.合并区间](https://leetcode-cn.com/problems/merge-intervals/)
 > 贪心
 
@@ -767,6 +765,53 @@ class Solution {
 }
 ```
 
+> C++实现
+
+```cpp
+class Solution {
+public:
+    int R{0}; // 行
+    int C{0}; // 列
+    int res{0}; // 最大黄金量
+    int dirs[4][2] = {{0,  1}, {1,  0}, {0,  -1}, {-1, 0}}; // 上下左右四个方向
+    vector<vector<bool>> visited;
+    vector<vector<int>> grid;
+
+    bool inGrid(int r, int c) {
+        return r >= 0 && r < R && c >= 0 && c < C;
+    }
+
+    int getMaximumGold(vector<vector<int>>& grid) {
+        R = grid.size();
+        C = grid[0].size();
+        this->grid = grid;
+        for (int r = 0; r < R; r++) {
+            for (int c = 0; c < C; c++) {
+                if (grid[r][c] != 0) {
+                    visited.clear();
+                    for (int i = 0; i < R; i++) visited.emplace_back(C, false); // 初始化访问数组都为false
+                    dfs(r, c, grid[r][c]); // 每次DFS都刷新最大可以得到的黄金量
+                }
+            }
+        }
+        return res;
+    }
+
+    void dfs(int rCur, int cCur, int goldTotal) {
+        visited[rCur][cCur] = true;
+        res = max(res, goldTotal); // 一共的黄金量去更新最大的黄金量
+        for (auto& dir : dirs) {
+            int rNext = rCur + dir[0];
+            int cNext = cCur + dir[1];
+            if (inGrid(rNext, cNext) && !visited[rNext][cNext] && grid[rNext][cNext] != 0) {
+                dfs(rNext, cNext, goldTotal + grid[rNext][cNext]);
+                visited[rNext][cNext] = false;
+            }
+        }
+    }
+};
+```
+
 ### 9.[505.迷宫II](https://leetcode-cn.com/problems/the-maze-ii/)
 > 这个题用DFS肯定会超时，见自己的DFS超时实现：https://leetcode-cn.com/submissions/detail/110787824/
 
@@ -881,6 +926,78 @@ class Solution {
         System.out.println(new Solution().shortestDistance(maze, start, destination));
     }
 }
+```
+
+> C++实现
+
+```cpp
+#include <cmath>
+
+#define MAX_VALUE 0x3f3f
+
+class Solution {
+public:
+    int R; // 行
+    int C; // 列
+    int dirs[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}}; // 上下左右四个方向
+    vector<vector<int>> grid;
+
+    bool inGrid(int r, int c) {
+        return r >= 0 && r < R && c >= 0 && c < C;
+    }
+
+    int bfs(int rStart, int cStart, int rEnd, int cEnd) {
+        int dis[R][C]; // dis[r][c]表示位置[r, c]到起点的局点
+        for (int r = 0; r < R; r++) {
+            for (int c = 0; c < C; c++) {
+                dis[r][c] = MAX_VALUE; // 要求最小值，就要初始化为最大值，因为每个点可能会更新多次
+            }
+        }
+        queue<int> rQueue;
+        queue<int> cQueue;
+        rQueue.push(rStart);
+        cQueue.push(cStart);
+        dis[rStart][cStart] = 0; // 起点距离起点的步数为0
+
+        while(!rQueue.empty() && !cQueue.empty()) {
+            int rCur = rQueue.front();
+            rQueue.pop();
+            int cCur = cQueue.front();
+            cQueue.pop();
+            for (auto& dir : dirs) {
+                int rNext = rCur + dir[0];
+                int cNext = cCur + dir[1];
+                int stepDis = 0;
+                while (inGrid(rNext, cNext) && grid[rNext][cNext] == 0) { // 下一个方向是能走的条件：在栅格内且是空地
+                    // 计算按照dir方向滚动最终能停在哪个点
+                    // 2.尝试继续往下一个位置走
+                    rNext = rNext + dir[0];
+                    cNext = cNext + dir[1];
+                    // 3.距离 + 1
+                    stepDis++;
+                }
+                // 上面的while结束，[rNextFinal, cNextFinal]存储地是最后一个合法位置的下一个位置，所以要再减回去，才是滚动后停下来地位置
+                rNext = rNext - dir[0];
+                cNext = cNext - dir[1];
+                // 注意在一般地BFS中，我们不会经过同一个点超过一次(用visited数组来控制)，但是在这道题目中，只要从起始位置到当前位置的步数
+                // 小于之前走法得到的最小步数dis[rNext][cNext]，我们就会把点(rNext, cNext)点加入到队列中，再次进行BFS
+                if (dis[rCur][cCur] + stepDis < dis[rNext][cNext]) {
+                    dis[rNext][cNext] = dis[rCur][cCur] + stepDis;
+                    rQueue.push(rNext);
+                    cQueue.push(cNext);
+                }
+            }
+        }
+        return dis[rEnd][cEnd] == MAX_VALUE ? -1 : dis[rEnd][cEnd];
+    }
+
+    int shortestDistance(vector<vector<int>>& maze, vector<int>& start, vector<int>& dest) {
+        R = maze.size();
+        C = maze[0].size();
+        grid = maze;
+        return bfs(start[0], start[1], dest[0], dest[1]);
+    }
+};
 ```
 
 
