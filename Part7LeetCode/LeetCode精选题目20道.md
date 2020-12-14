@@ -1978,6 +1978,45 @@ class Solution {
 }
 ```
 
+> C++实现
+
+```cpp
+class Solution {
+public:
+    string longestDiverseString(int a, int b, int c) {
+        vector<pair<char, int>> piis(3);
+        piis[0] = make_pair('a', a);
+        piis[1] = make_pair('b', b);
+        piis[2] = make_pair('c', c);
+
+        string sb;
+        while (true) {
+            // 按照使用次数降序排列，每次使用后都要重新排队
+            sort(piis.begin(), piis.end(), [](const pair<char, int> &p1, const pair<char, int> &p2) {
+                return p2.second < p1.second;
+            });
+            // 先放最多的，如果前面放的两个字符和剩余个数最多的字符相同，则放置次多的字符
+            if (sb.length() >= 2 && sb[sb.length() - 1] == piis[0].first && sb[sb.length() - 2] == piis[0].first) {
+                if (piis[1].second > 0) {
+                    sb += piis[1].first;
+                    piis[1].second--;
+                } else {
+                    break;
+                }
+            } else {
+                if (piis[0].second > 0) {
+                    sb += piis[0].first;
+                    piis[0].second--;
+                } else {
+                    break;
+                }
+            }
+        }
+        return sb;
+    }
+};
+```
+
 ### 16.[990.等式方程的可满足性](https://leetcode-cn.com/problems/satisfiability-of-equality-equations/)
 > 考察点：并查集/图，借助了自己总结的并查集类
 
