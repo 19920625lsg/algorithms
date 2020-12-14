@@ -1533,6 +1533,70 @@ class Solution {
     }
 }
 ```
+
+> C++实现
+
+```cpp
+class Solution {
+public:
+    int R, C;
+    vector<vector<int>> grid;
+
+    // 计算[r, c]点所在的上水平、垂直、对角线、反对角线地最长连续1线段
+    int getMax1Len(int r, int c) {
+        int result = 0;
+        // 1.判断水平方向
+        int len = 1;
+        for (int i = c + 1; i < C; i++) { // 只向右侧找
+            if (grid[r][i] == 1) len++;
+            else break;
+        }
+        result = max(result, len);
+
+        // 2.判断垂直方向
+        len = 1;
+        for (int i = r + 1; i < R; i++) {
+            if (grid[i][c] == 1) len++;
+            else break;
+        }
+        result = max(result, len);
+
+        // 3.判断正对角线
+        len = 1;
+        for (int i = r + 1, j = c + 1; i < R && j < C; i++, j++) {
+            if (grid[i][j] == 1) len++;
+            else break;
+        }
+        result = max(result, len);
+
+        // 4.判断反对角线
+        len = 1;
+        for (int i = r + 1, j = c - 1; i < R && j >= 0; i++, j--) {
+            if (grid[i][j] == 1) len++;
+            else break;
+        }
+        result = max(result, len);
+
+        return result;
+    }
+
+    int longestLine(vector<vector<int>>& M) {
+        if (M.size() == 0 || M[0].size() == 0) return 0;
+        R = M.size();
+        C = M[0].size();
+        grid = M;
+        int res = 0; // 求最大值，则初始化最小值
+        for (int r = 0; r < R; r++) {
+            for (int c = 0; c < C; c++) {
+                if (grid[r][c] != 1) continue;
+                res = max(res, getMax1Len(r, c));
+            }
+        }
+        return res;
+    }
+};
+```
+
 ### 14.[1477.找两个和为目标值且不重叠的子数组](https://leetcode-cn.com/problems/find-two-non-overlapping-sub-arrays-each-with-target-sum/)
 > 前缀和 + 滑动窗口，类似上面的[LeetCode 325.和为K的最长子数组长度](https://leetcode-cn.com/problems/maximum-size-subarray-sum-equals-k/)
 
