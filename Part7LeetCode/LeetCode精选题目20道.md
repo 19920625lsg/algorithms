@@ -1381,6 +1381,65 @@ class Solution {
     }
 }
 ```
+
+> C++实现
+
+```cpp
+class Solution {
+public:
+    vector<int> topoOrder; // 存储拓扑排序的结果
+    bool hasCycle = false; // 默认起始图没有环
+    map<int, int> inDegreesG; // 所有顶点的入度
+
+    // 根据先决条件构造邻接矩阵，在DFS过程中判断是否存在环，存在环则不能修完所有课程
+    bool canFinish(int numCourses, vector<vector<int>> &prerequisites) {
+        map<int, vector<int>> mapAdj; // 记录学完一个课程后下面可以学的课程列表，即邻接表
+        for (auto &prerequisite : prerequisites) {
+            if (!mapAdj.count(prerequisite[1])) { // 不包含这个键，那么
+                vector<int> adj;
+                mapAdj[prerequisite[1]] = adj; // 不存在这个键那么要新建了
+            }
+            // prerequisite[1] ===> prerequisite[0]
+            mapAdj[prerequisite[1]].push_back(prerequisite[0]);
+            inDegreesG[prerequisite[0]]++;
+        }
+        topoSort(numCourses, mapAdj);
+        // 没有环说明可以修完所有课程
+        return !hasCycle;
+    }
+
+    // 拓扑排序核心
+    void topoSort(int numCourses, map<int, vector<int>> &mapAdj) {
+        // 存储还未排序的入度为0的顶点
+        queue<int> q;
+        int inDegrees[numCourses];
+        for (int v = 0; v < numCourses; v++) {
+            inDegrees[v] = inDegreesG[v];
+            if (inDegrees[v] == 0) q.push(v);
+        }
+
+        while (!q.empty()) {
+            int cur = q.front();
+            q.pop();
+            topoOrder.push_back(cur);
+            if (mapAdj.count(cur)) { // 含有当前的点才进行下一步
+                for (int next : mapAdj[cur]) {
+                    // 更新cur点的邻接点的入度
+                    inDegrees[next]--;
+                    if (inDegrees[next] == 0) q.push(next); // 更新后入度为0的点加入到queue中
+                }
+            }
+        }
+
+        if (topoOrder.size() != numCourses) {
+            // 找不到入度为0的点但是还有点没被删除，说明图中有环
+            hasCycle = true;
+            topoOrder.clear();
+        }
+    }
+};
+```
+
 ### 13.[562.矩阵中最长的连续1线段](https://leetcode-cn.com/problems/longest-line-of-consecutive-one-in-matrix/)
 > 暴力也能过，唉，计算机每秒执行10^7条指令，只要估算在题目限制时间内可以暴力过，就直接暴力！！哈哈
 
