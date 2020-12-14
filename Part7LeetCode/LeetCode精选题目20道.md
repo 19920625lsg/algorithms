@@ -1215,6 +1215,61 @@ class Solution {
     }
 }
 ```
+
+```cpp
+class Solution {
+public:
+    int n;
+    vector<string> res;
+
+    // 检验字符集合是否符合括号匹配的原则
+    bool check(vector<char> chs) {
+        stack<char> st;
+        int left = n;
+        int right = n;
+
+        for (char c : chs) {
+            if (c == '(') {
+                left--;
+                st.push(c);
+            }
+            if (c == ')') {
+                right--;
+                if (st.empty()) return false;
+                st.pop();
+            }
+        }
+        return st.empty() && left == 0 && right == 0;
+    }
+
+    vector<string> generateParenthesis(int n) {
+        this->n = n;
+        vector<char> chs;
+        dfs(chs);
+        return res;
+    }
+
+    void dfs(vector<char> &chs) {
+        if (chs.size() == n * 2) {
+            if (!check(chs)) return;
+            string sb;
+            for (char c : chs) sb += c;
+            res.push_back(sb);
+            return;
+        }
+        // 1.尝试放(
+        chs.push_back('(');
+        dfs(chs);
+        chs.pop_back();
+
+        // 2.尝试放)
+        chs.push_back(')');
+        dfs(chs);
+        chs.pop_back();
+    }
+};
+```
+
 ### 12.[207.课程表](https://leetcode-cn.com/problems/course-schedule/)
 > 拓扑排序,知识点见[Part2BasicGraph/第13章_有向图及相关算法](../Part2BasicGraph/第13章_有向图及相关算法.md#136137-拓扑排序--仅针对有向图)
 
