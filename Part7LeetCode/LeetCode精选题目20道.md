@@ -1806,6 +1806,55 @@ class Solution {
 }
 ```
 
+> C++实现
+
+```cpp
+class Solution {
+public:
+    int minSumOfLengths(vector<int> &arr, int target) {
+        int INT_M = 0x3f3f3f;
+        vector<vector<int>> intervalList; // 存储区间左右端点对象的列表
+        // 完全按照labuladong总结的滑动窗口模板来做地：所有元素都是正数，right++则sum增加，left++则sum减少，因此可以用滑动窗口
+        int left = 0, right = 0, sum = 0;
+        while (right < arr.size()) {
+            sum += arr[right]; // 右侧移入新的元素
+            right++;
+            if (sum == target) {
+                // 对于arr来说，区间是[left, right)，左闭右开区间，所以区间长度刚好是right - left
+                intervalList.push_back({right - left, left});
+            }
+            while (sum > target) {
+                sum -= arr[left]; // 左侧移走一个元素
+                left++;  // 不断的减也可能减到目标值
+                // 对于arr来说，区间是[left, right)，左闭右开区间，所以区间长度刚好是right - left
+                if (sum == target) intervalList.push_back({right - left, left});
+            }
+        }
+        // 自定义，按照区间长度排序
+        sort(intervalList.begin(), intervalList.end(), [](const auto &p1, const auto &p2) {
+            return p1[0] < p2[0];
+        });
+
+        // 再暴力遍历所有满足条件的集合
+        int res = INT_M;
+        for (int i = 0; i < intervalList.size(); i++) {
+            auto &interval1 = intervalList[i];
+            if (interval1[0] * 2 >= res) break; // ans是两个长度之和，如果遍历到有超过这个长度的，后面的肯定更大了，就无需遍历了
+            for (int j = i + 1; j < intervalList.size(); j++) {
+                auto &interval2 = intervalList[j]; // 获得另外一个
+                // 区间1在左，和区间2相交
+                if (interval1[1] < interval2[1] && interval1[1] + interval1[0] > interval2[1]) continue;
+                // 区间2在左，和区间1相交
+                if (interval2[1] < interval1[1] && interval2[1] + interval2[0] > interval1[1]) continue;
+                res = min(res, interval1[0] + interval2[0]); // 区间不相交才能更新区间长度之和
+                break; // 长度经过排序之后，后面的区间长度肯定更大，即一定比res大了，因此不需要遍历了
+            }
+        }
+        return res == INT_M ? -1 : res;
+    }
+};
+```
+
 ### 15.[1405.最长快乐字符串](https://leetcode-cn.com/problems/longest-happy-string/)
 > 考察点 字符串， 贪心算法
 
